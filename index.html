@@ -86,6 +86,7 @@ input[type=checkbox]{accent-color:var(--chrain);width:18px;height:18px}
     <span class="btn pick">Choose a video<input type="file" id="file" accept="video/*,image/*" aria-label="Choose a video"></span>
     <button class="btn" id="play" type="button">Pause</button>
     <button class="btn rec" id="rec" type="button">● Save filtered video</button>
+    <button class="btn primary" id="save" type="button" hidden>⬇ Save to phone</button>
     <button class="btn jump" id="jump" type="button">Adjust ↓</button>
   </div>
   <p class="status" id="status">On your phone, tap Film yourself to record a selfie clip. When you stop, it comes back gefiltered.</p>
@@ -407,6 +408,18 @@ $('play').addEventListener('click',()=>{
 });
 
 /* ---------- save the filtered video, with the clip's sound ---------- */
+let lastFile=null;
+$('save').addEventListener('click',async()=>{
+  if(!lastFile) return;
+  if(navigator.canShare && navigator.canShare({files:[lastFile]})){
+    try{ await navigator.share({files:[lastFile],title:'Gefilter Fish'}); statusEl.textContent='Saved. Make another?'; return; }
+    catch(e){ if(e.name==='AbortError'){ statusEl.textContent='Cancelled. Tap “Save to phone” to try again.'; return; } }
+  }
+  const url=URL.createObjectURL(lastFile), a=document.createElement('a');
+  a.href=url; a.download=lastFile.name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+  statusEl.textContent=`Downloaded ${lastFile.name}.`;
+});
 let rec=null, chunks=[], actx=null, audioDest=null, wired=new WeakSet();
 function audioFor(v){
   try{
@@ -434,12 +447,11 @@ $('rec').addEventListener('click',()=>{
     rec=null; $('rec').textContent='● Save filtered video'; badge.classList.remove('rec');
     badge.textContent=video?'You, gefiltered':'Demo';
     if(startedWithVideo){ startedWithVideo.loop=true; startedWithVideo.onended=null; startedWithVideo.play(); }
-    const dl=await claude.use('downloads').catch(()=>null);
-    if(!dl){statusEl.textContent='Recorded, but saving isn’t available in this view. Open the page in the Claude app or a signed-in browser.';return;}
-    try{ await dl.save({filename:`gefilter-fish.${ext}`,data:blob}); statusEl.textContent=`Saved gefilter-fish.${ext}.`; }
-    catch(e){ statusEl.textContent='Save cancelled.'; }
+    lastFile=new File([blob],`gefilter-fish.${ext}`,{type:blob.type});
+    $('save').hidden=false;
+    statusEl.textContent='Done! Tap “Save to phone”, then choose Save Video.';
   };
-  rec.start(250);
+  rec.start(250); $('save').hidden=true;
   $('rec').textContent='■ Stop'; badge.textContent='Recording'; badge.classList.add('rec');
   statusEl.textContent=video?'Recording your clip from the start. It stops by itself at the end.':'Recording the demo. Tap Stop when you’re done.';
 });
