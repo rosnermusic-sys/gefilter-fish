@@ -1,0 +1,452 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Gefilter Fish</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: deli-counter Formica card — big stage on top, capture buttons, knob panel below. Single committed light look. */
+:root{
+  --formica:#cfe2da;
+  --formica-dot:#b7d0c6;
+  --ink:#1d2b3a;
+  --muted:#4d6170;
+  --carrot:#f07a1f;
+  --chrain:#b0245e;
+  --plate:#fbfaf6;
+  --display:"Bagel Fat One", "Arial Rounded MT Bold", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", system-ui, -apple-system, sans-serif;
+  color-scheme:light;
+}
+html,body{background:var(--formica);color:var(--ink)}
+body{
+  font-family:var(--body);font-size:16px;line-height:1.5;
+  background-image:radial-gradient(var(--formica-dot) 1.2px, transparent 1.3px);
+  background-size:14px 14px;
+  padding-left:max(16px, env(safe-area-inset-left,0px));
+  padding-right:max(16px, env(safe-area-inset-right,0px));
+}
+.wrap{max-width:760px;margin:0 auto;padding-block:20px 40px;display:grid;gap:16px}
+header{display:grid;gap:4px}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(2.4rem,9vw,4rem);line-height:.95;margin:0;letter-spacing:.01em;text-wrap:balance}
+h1 .r{color:var(--carrot);-webkit-text-stroke:2px var(--ink);paint-order:stroke fill}
+.tag{margin:0;color:var(--muted);max-width:60ch}
+.stage{position:relative;border:3px solid var(--ink);border-radius:18px;overflow:hidden;background:var(--ink);box-shadow:6px 6px 0 var(--ink)}
+canvas{display:block;max-width:100%;max-height:min(78vh,620px);width:auto;height:auto;margin:0 auto;touch-action:pan-y pinch-zoom;cursor:grab}
+@media (max-width:700px){canvas{max-height:52vh}}
+.jump{display:none}
+@media (max-width:700px){.jump{display:inline-block}}
+.badge{position:absolute;left:12px;top:12px;background:var(--chrain);color:#fff;font-weight:700;font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:999px}
+.badge.rec{background:#d11;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:.4}}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.btn{font:700 1rem var(--body);border:3px solid var(--ink);background:var(--plate);color:var(--ink);border-radius:999px;padding:10px 18px;cursor:pointer;box-shadow:3px 3px 0 var(--ink)}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.btn:focus-visible,input:focus-visible{outline:3px solid var(--chrain);outline-offset:2px}
+.btn.primary{background:var(--carrot)}
+.btn.rec{background:var(--chrain);color:#fff}
+.pick{position:relative;overflow:hidden;display:inline-block}
+.pick input[type=file]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:200px}
+.pick:focus-within{outline:3px solid var(--chrain);outline-offset:2px}
+#holder{position:fixed;left:0;bottom:0;width:2px;height:2px;opacity:0;pointer-events:none;overflow:hidden}
+.knobs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px 22px;background:var(--plate);border:3px solid var(--ink);border-radius:18px;padding:16px}
+.knob{display:grid;gap:2px;min-width:0}
+.knob label{display:flex;justify-content:space-between;font-weight:700;font-size:.82rem;letter-spacing:.06em;text-transform:uppercase}
+.knob output{font-variant-numeric:tabular-nums;color:var(--muted)}
+.knob small{color:var(--muted);font-size:.8rem}
+input[type=range]{width:100%;accent-color:var(--carrot);-webkit-appearance:none;appearance:none;background:transparent;height:30px;margin:2px 0}
+input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:999px;background:#e9c9a6;border:2px solid var(--ink)}
+input[type=range]::-moz-range-track{height:8px;border-radius:999px;background:#e9c9a6;border:2px solid var(--ink)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;margin-top:-11px;border-radius:50%;background:var(--carrot);border:3px solid var(--ink);box-shadow:2px 2px 0 var(--ink)}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--carrot);border:3px solid var(--ink);box-shadow:2px 2px 0 var(--ink)}
+.fit input[type=range]::-webkit-slider-thumb{background:var(--chrain)}
+.fit input[type=range]::-moz-range-thumb{background:var(--chrain)}
+.fit{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px 22px;padding-bottom:14px;border-bottom:2px dashed var(--line,#9fbbb0)}
+.fit-head{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center}
+.btn.small{font-size:.85rem;padding:4px 12px;box-shadow:2px 2px 0 var(--ink);background:var(--carrot)}
+.toggles{display:flex;flex-wrap:wrap;gap:8px 18px;grid-column:1/-1}
+.toggles label{display:flex;gap:6px;align-items:center;font-weight:700}
+input[type=checkbox]{accent-color:var(--chrain);width:18px;height:18px}
+.status{color:var(--muted);font-size:.9rem;min-height:1.5em;margin:0}
+@media (prefers-reduced-motion:reduce){.badge.rec{animation:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Gefilte<span class="r">r</span> Fish</h1>
+    <p class="tag">Film yourself and come back as a piece of gefilte fish: your face pressed into a poached fish loaf, sitting in jelly on Bubbe's plate with a carrot coin on top. Drag the carrot to move it.</p>
+  </header>
+
+  <div class="stage">
+    <canvas id="cv" width="960" height="720" aria-label="Filtered video preview"></canvas>
+    <span class="badge" id="badge">Demo</span>
+  </div>
+
+  <div class="row">
+    <span class="btn primary pick">Film yourself<input type="file" id="cam" accept="video/*" capture="user" aria-label="Film yourself"></span>
+    <span class="btn pick">Choose a video<input type="file" id="file" accept="video/*,image/*" aria-label="Choose a video"></span>
+    <button class="btn" id="play" type="button">Pause</button>
+    <button class="btn rec" id="rec" type="button">● Save filtered video</button>
+    <button class="btn jump" id="jump" type="button">Adjust ↓</button>
+  </div>
+  <p class="status" id="status">On your phone, tap Film yourself to record a selfie clip. When you stop, it comes back gefiltered.</p>
+
+  <div id="holder" aria-hidden="true"></div>
+  <div class="knobs" id="knobs">
+    <div class="fit">
+      <div class="fit-head"><b>Fit your face in the dish</b><button class="btn small" id="fit-reset" type="button">Reset</button></div>
+      <div class="knob"><label for="k-zoom">Face size <output id="o-zoom"></output></label>
+        <input type="range" id="k-zoom" min="40" max="300" value="100"><small>Smaller fits more of you in the loaf</small></div>
+      <div class="knob"><label for="k-fx">Left / right <output id="o-fx"></output></label>
+        <input type="range" id="k-fx" min="-100" max="100" value="0"></div>
+      <div class="knob"><label for="k-fy">Higher / lower <output id="o-fy"></output></label>
+        <input type="range" id="k-fy" min="-100" max="100" value="0"></div>
+    </div>
+    <div class="knob"><label for="k-gef">Gefilteness <output id="o-gef"></output></label>
+      <input type="range" id="k-gef" min="0" max="100" value="85"><small>How much of you turns to poached fish</small></div>
+    <div class="knob"><label for="k-jel">Jelly wobble <output id="o-jel"></output></label>
+      <input type="range" id="k-jel" min="0" max="100" value="20"><small>The jiggle when the plate is set down</small></div>
+    <div class="knob"><label for="k-chr">Chrain <output id="o-chr"></output></label>
+      <input type="range" id="k-chr" min="0" max="100" value="50"><small>Size of the beet horseradish dollop</small></div>
+    <div class="knob"><label for="k-sch">Jelly shine <output id="o-sch"></output></label>
+      <input type="range" id="k-sch" min="0" max="100" value="45"><small>Glossy aspic sheen on the loaf</small></div>
+    <div class="toggles">
+      <label><input type="checkbox" id="t-carrot" checked> Carrot coin</label>
+      <label><input type="checkbox" id="t-plate" checked> Bubbe's plate</label>
+      <label><input type="checkbox" id="t-pars" checked> Parsley</label>
+    </div>
+  </div>
+</div>
+
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const cv=$('cv'), ctx=cv.getContext('2d');
+let W=cv.width, H=cv.height;
+const src=document.createElement('canvas'), sctx=src.getContext('2d');
+const tex=document.createElement('canvas'), speck=document.createElement('canvas');
+const knobs={gef:$('k-gef'),jel:$('k-jel'),chr:$('k-chr'),sch:$('k-sch'),zoom:$('k-zoom'),fx:$('k-fx'),fy:$('k-fy')};
+const setOut=()=>{for(const k in knobs) $('o-'+k).textContent=knobs[k].value;};
+for(const k in knobs) knobs[k].addEventListener('input',setOut); setOut();
+$('fit-reset').addEventListener('click',()=>{knobs.zoom.value=100;knobs.fx.value=0;knobs.fy.value=0;setOut();});
+const statusEl=$('status'), badge=$('badge');
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let video=null, image=null, paused=false, carrot=null, dragging=false;
+
+/* ---------- geometry ---------- */
+function loaf(){ return {cx:W/2, cy:H*0.48, rx:Math.min(W*0.3,H*0.4), ry:Math.min(H*0.3,W*0.4)}; }
+function setSize(w,h){
+  cv.width=src.width=w; cv.height=src.height=h; W=w; H=h;
+  const L=loaf(); carrot={x:L.cx+L.rx*0.38, y:L.cy-L.ry*0.7};
+  makeTextures();
+}
+
+/* ---------- fish-loaf texture: mottled beige with onion flecks and pepper ---------- */
+function rnd(seed){let s=seed;return()=>((s=Math.imul(s^s>>>15,2246822507)+0x6d2b79f5|0)>>>0)/4294967296;}
+function makeTextures(){
+  tex.width=speck.width=W; tex.height=speck.height=H;
+  const t=tex.getContext('2d'), r=rnd(7);
+  t.fillStyle='#d8ccb0'; t.fillRect(0,0,W,H);
+  for(let i=0;i<900;i++){ // soft mottling
+    const x=r()*W,y=r()*H,rad=6+r()*28;
+    t.fillStyle=r()<.5?'rgba(238,230,210,.35)':'rgba(170,150,115,.22)';
+    t.beginPath(); t.ellipse(x,y,rad,rad*(.5+r()*.6),r()*3,0,7); t.fill();
+  }
+  const s=speck.getContext('2d'); s.clearRect(0,0,W,H);
+  const area=W*H/1000;
+  for(let i=0;i<area*0.6;i++){ // white onion/matzo flecks
+    s.fillStyle=`rgba(255,250,235,${.4+r()*.4})`;
+    s.beginPath(); s.ellipse(r()*W,r()*H,1+r()*3,1+r()*1.5,r()*3,0,7); s.fill();
+  }
+  for(let i=0;i<area*0.25;i++){ // black pepper
+    s.fillStyle=`rgba(60,45,30,${.5+r()*.4})`;
+    s.fillRect(r()*W,r()*H,1+r()*1.6,1+r()*1.6);
+  }
+  for(let i=0;i<area*0.06;i++){ // stray carrot bits
+    s.fillStyle='rgba(230,120,40,.7)';
+    s.fillRect(r()*W,r()*H,2,2);
+  }
+}
+
+/* ---------- demo source: a cartoon face so the loaf shows what happens ---------- */
+function drawDemo(t){
+  sctx.fillStyle='#6a8fb5'; sctx.fillRect(0,0,W,H);
+  const cx=W/2, cy=H*0.5, s=Math.min(W,H)/720;
+  sctx.fillStyle='#3b2a20';
+  sctx.beginPath(); sctx.ellipse(cx,cy-120*s,210*s,170*s,0,0,7); sctx.fill();
+  sctx.fillStyle='#e8b896';
+  sctx.beginPath(); sctx.ellipse(cx,cy,180*s,230*s,0,0,7); sctx.fill();
+  sctx.fillStyle='#3b2a20';
+  sctx.beginPath(); sctx.ellipse(cx,cy-190*s,170*s,70*s,0,Math.PI,0); sctx.fill();
+  const blink=(t%3200)<140?0.1:1;
+  for(const dx of [-70,70]){
+    sctx.fillStyle='#fff'; sctx.beginPath(); sctx.ellipse(cx+dx*s,cy-30*s,34*s,22*s*blink,0,0,7); sctx.fill();
+    sctx.fillStyle='#2a1a10'; sctx.beginPath(); sctx.arc(cx+dx*s+Math.sin(t/900)*8*s,cy-30*s,13*s*blink,0,7); sctx.fill();
+    sctx.strokeStyle='#3b2a20'; sctx.lineWidth=9*s;
+    sctx.beginPath(); sctx.moveTo(cx+(dx-35)*s,cy-80*s); sctx.lineTo(cx+(dx+35)*s,cy-(dx<0?88:72)*s); sctx.stroke();
+  }
+  sctx.strokeStyle='#b07656'; sctx.lineWidth=7*s;
+  sctx.beginPath(); sctx.moveTo(cx,cy-10*s); sctx.lineTo(cx-14*s,cy+50*s); sctx.lineTo(cx+8*s,cy+56*s); sctx.stroke();
+  const m=10+Math.abs(Math.sin(t/260))*26;
+  sctx.fillStyle='#7a2a2a';
+  sctx.beginPath(); sctx.ellipse(cx,cy+115*s,55*s,m*s,0,0,7); sctx.fill();
+}
+function cover(el,w,h){
+  const s=Math.max(W/w,H/h), dw=w*s, dh=h*s;
+  sctx.drawImage(el,(W-dw)/2,(H-dh)/2,dw,dh);
+}
+function drawSource(t){
+  if(video && video.readyState>=2) cover(video,video.videoWidth,video.videoHeight);
+  else if(image) cover(image,image.naturalWidth,image.naturalHeight);
+  else drawDemo(t);
+}
+
+/* ---------- plate and table ---------- */
+function drawTable(){
+  ctx.fillStyle='#efe9df'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(44,79,158,.13)';
+  for(let x=0;x<W;x+=56) ctx.fillRect(x,0,28,H);
+  for(let y=0;y<H;y+=56) ctx.fillRect(0,y,W,28);
+}
+function drawPlate(L){
+  const R=Math.min(W,H)*0.49, cx=L.cx, cy=L.cy+H*0.02;
+  const rx=Math.max(R,L.rx*1.3), ry=Math.max(R*0.95,L.ry*1.3);
+  ctx.fillStyle='rgba(0,0,0,.2)';
+  ctx.beginPath(); ctx.ellipse(cx+10,cy+14,rx,ry,0,0,7); ctx.fill();
+  ctx.fillStyle='#fdfcf8';
+  ctx.beginPath(); ctx.ellipse(cx,cy,rx,ry,0,0,7); ctx.fill();
+  ctx.strokeStyle='#2c4f9e'; ctx.lineWidth=Math.max(5,R*0.022);
+  ctx.beginPath(); ctx.ellipse(cx,cy,rx*0.93,ry*0.93,0,0,7); ctx.stroke();
+  ctx.lineWidth=2;
+  ctx.beginPath(); ctx.ellipse(cx,cy,rx*0.88,ry*0.88,0,0,7); ctx.stroke();
+  ctx.fillStyle='#2c4f9e';
+  for(let i=0;i<28;i++){const a=i/28*Math.PI*2; ctx.beginPath(); ctx.arc(cx+Math.cos(a)*rx*0.905,cy+Math.sin(a)*ry*0.905,R*0.009+1.5,0,7); ctx.fill();}
+  // inner well shading
+  const g=ctx.createRadialGradient(cx,cy,R*0.2,cx,cy,R*0.85);
+  g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1,'rgba(120,110,90,.12)');
+  ctx.fillStyle=g; ctx.beginPath(); ctx.ellipse(cx,cy,rx*0.86,ry*0.86,0,0,7); ctx.fill();
+}
+
+function loafPath(c,cx,cy,rx,ry,t,wob){
+  c.beginPath();
+  for(let i=0;i<=80;i++){
+    const a=i/80*Math.PI*2;
+    const lump=1+0.03*Math.sin(a*3+0.7)+0.015*Math.sin(a*7+2)+wob*0.025*Math.sin(a*4+t/120);
+    const x=cx+Math.cos(a)*rx*lump, y=cy+Math.sin(a)*ry*lump;
+    i?c.lineTo(x,y):c.moveTo(x,y);
+  }
+  c.closePath();
+}
+
+function frame(t){
+  if(!paused || !video) drawSource(t);
+  const gef=knobs.gef.value/100, jel=(knobs.jel.value/100)*(reduce?0.25:1);
+  const chr=knobs.chr.value/100, sch=knobs.sch.value/100;
+  const L=loaf();
+  const squish=jel*0.03*Math.sin(t/110)*(0.6+0.4*Math.sin(t/900));
+  const rx=L.rx*(1+squish), ry=L.ry*(1-squish), cx=L.cx, cy=L.cy;
+
+  ctx.save();
+  drawTable();
+  if($('t-plate').checked) drawPlate(L);
+
+  // jelly pool under the loaf
+  ctx.fillStyle='rgba(205,170,90,.35)';
+  loafPath(ctx,cx+4,cy+ry*0.12,rx*1.12,ry*1.06,t,jel*2); ctx.fill();
+  ctx.strokeStyle='rgba(255,245,210,.6)'; ctx.lineWidth=2; ctx.stroke();
+  // cast shadow
+  ctx.fillStyle='rgba(70,55,30,.25)';
+  ctx.beginPath(); ctx.ellipse(cx+8,cy+ry*0.14,rx*0.98,ry*0.95,0,0,7); ctx.fill();
+
+  // the loaf itself, with you in it
+  loafPath(ctx,cx,cy,rx,ry,t,jel); ctx.save(); ctx.clip();
+  ctx.drawImage(tex,0,0);
+  const zoom=knobs.zoom.value/100;
+  const bx=cx-rx, by=cy-ry, s=Math.max(2*rx/W,2*ry/H)*1.55*zoom;
+  const ox=cx-W*s/2+(knobs.fx.value/100)*W*s*0.5, oy=cy-H*s/2+(knobs.fy.value/100)*H*s*0.5, strip=4;
+  const drawYou=()=>{
+    for(let y=0;y<H;y+=strip){
+      const dx=Math.sin(y/30+t/140)*jel*7;
+      ctx.drawImage(src,0,y,W,strip,ox+dx,oy+y*s,W*s,strip*s+1);
+    }
+  };
+  if(gef<1){ ctx.globalAlpha=1-gef; drawYou(); ctx.globalAlpha=1; }
+  if(gef>0){
+    ctx.globalCompositeOperation='luminosity'; ctx.globalAlpha=gef; drawYou();
+    ctx.globalCompositeOperation='screen'; ctx.fillStyle=`rgba(120,105,80,${gef*0.55})`; ctx.fillRect(0,0,W,H);
+    ctx.globalCompositeOperation='soft-light'; ctx.globalAlpha=gef*0.7; ctx.drawImage(tex,0,0);
+    ctx.globalCompositeOperation='source-over'; ctx.globalAlpha=gef; ctx.drawImage(speck,0,0);
+    ctx.globalAlpha=1;
+  }
+  // rounded 3D shading: darker edges, poached surface
+  ctx.globalCompositeOperation='multiply';
+  let g=ctx.createRadialGradient(cx-rx*0.15,cy-ry*0.25,Math.min(rx,ry)*0.3,cx,cy,Math.max(rx,ry)*1.02);
+  g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(0.7,'rgba(225,210,180,1)'); g.addColorStop(1,'rgba(150,120,80,1)');
+  ctx.fillStyle=g; ctx.fillRect(bx-10,by-10,rx*2+20,ry*2+20);
+  // jelly shine
+  if(sch>0){
+    ctx.globalCompositeOperation='screen';
+    const hx=cx-rx*0.35+Math.sin(t/1400)*rx*0.08, hy=cy-ry*0.55;
+    g=ctx.createRadialGradient(hx,hy,0,hx,hy,rx*0.55);
+    g.addColorStop(0,`rgba(255,250,230,${0.55*sch})`); g.addColorStop(1,'rgba(255,250,230,0)');
+    ctx.fillStyle=g; ctx.fillRect(bx,by,rx*2,ry*2);
+    ctx.fillStyle=`rgba(255,255,250,${0.6*sch})`;
+    ctx.beginPath(); ctx.ellipse(hx,hy+ry*0.05,rx*0.2,ry*0.05,-0.25,0,7); ctx.fill();
+  }
+  ctx.restore();
+  // crusty rim + jelly coat edge
+  ctx.strokeStyle='rgba(140,110,70,.55)'; ctx.lineWidth=3;
+  loafPath(ctx,cx,cy,rx,ry,t,jel); ctx.stroke();
+  ctx.strokeStyle=`rgba(240,215,140,${0.35+sch*0.35})`; ctx.lineWidth=6;
+  loafPath(ctx,cx,cy,rx+5,ry+5,t,jel); ctx.stroke();
+
+  // chrain dollop
+  if(chr>0) drawChrain(cx-rx*1.0, cy+ry*0.85, Math.min(W,H)*0.07*(0.5+chr));
+  if($('t-pars').checked) drawParsley(carrot.x-Math.min(W,H)*0.07, carrot.y+Math.min(W,H)*0.01);
+  if($('t-carrot').checked) drawCarrot(carrot.x, carrot.y+Math.sin(t/110)*jel*5, Math.min(W,H)*0.07);
+  ctx.restore();
+  requestAnimationFrame(frame);
+}
+
+function drawChrain(x,y,s){
+  ctx.fillStyle='rgba(0,0,0,.18)'; ctx.beginPath(); ctx.ellipse(x+5,y+8,s*1.1,s*0.6,0,0,7); ctx.fill();
+  ctx.fillStyle='#7d1240'; ctx.beginPath(); ctx.ellipse(x,y,s*1.1,s*0.62,-0.15,0,7); ctx.fill();
+  ctx.fillStyle='#a51f55'; ctx.beginPath(); ctx.ellipse(x-s*0.08,y-s*0.12,s*0.85,s*0.45,-0.15,0,7); ctx.fill();
+  ctx.fillStyle='#c4366e'; ctx.beginPath(); ctx.ellipse(x-s*0.15,y-s*0.22,s*0.45,s*0.24,-0.15,0,7); ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.45)'; ctx.beginPath(); ctx.ellipse(x-s*0.35,y-s*0.3,s*0.18,s*0.06,-0.3,0,7); ctx.fill();
+}
+function drawParsley(x,y){
+  const s=Math.min(W,H)/720;
+  ctx.strokeStyle='#3c6e2a'; ctx.lineWidth=3*s;
+  ctx.beginPath(); ctx.moveTo(x,y+30*s); ctx.quadraticCurveTo(x-10*s,y,x-6*s,y-30*s); ctx.stroke();
+  const leaves=[[-6,-34],[-26,-18],[12,-20],[-20,4],[10,2]];
+  for(const [dx,dy] of leaves){
+    ctx.fillStyle=dy<-25?'#4f8f2f':'#3f7d26';
+    for(let k=0;k<3;k++){ctx.beginPath(); ctx.arc(x+(dx+k*6-6)*s,y+(dy+(k%2)*4)*s,8*s,0,7); ctx.fill();}
+  }
+}
+function drawCarrot(x,y,R){
+  ctx.fillStyle='rgba(0,0,0,.25)';
+  ctx.beginPath(); ctx.ellipse(x+4,y+R*0.25,R,R*0.55,0,0,7); ctx.fill();
+  ctx.beginPath();
+  for(let i=0;i<=48;i++){
+    const a=i/48*Math.PI*2, r=R*(1+0.06*Math.cos(a*16));
+    const px=x+Math.cos(a)*r, py=y+Math.sin(a)*r*0.6;
+    i?ctx.lineTo(px,py):ctx.moveTo(px,py);
+  }
+  ctx.closePath();
+  const g=ctx.createRadialGradient(x,y,2,x,y,R);
+  g.addColorStop(0,'#ffb35c'); g.addColorStop(0.45,'#f07a1f'); g.addColorStop(1,'#c4520d');
+  ctx.fillStyle=g; ctx.fill();
+  ctx.strokeStyle='#a8430a'; ctx.lineWidth=2; ctx.stroke();
+  ctx.strokeStyle='rgba(255,210,140,.8)';
+  ctx.beginPath(); ctx.ellipse(x,y,R*0.48,R*0.28,0,0,7); ctx.stroke();
+  for(let i=0;i<8;i++){
+    const a=i/8*Math.PI*2;
+    ctx.beginPath(); ctx.moveTo(x+Math.cos(a)*R*0.5,y+Math.sin(a)*R*0.3);
+    ctx.lineTo(x+Math.cos(a)*R*0.82,y+Math.sin(a)*R*0.5); ctx.stroke();
+  }
+  ctx.fillStyle='rgba(255,255,255,.45)';
+  ctx.beginPath(); ctx.ellipse(x-R*0.35,y-R*0.25,R*0.18,R*0.07,-0.4,0,7); ctx.fill();
+}
+
+/* ---------- drag the carrot ---------- */
+function pt(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)*W/r.width,y:(e.clientY-r.top)*H/r.height};}
+cv.addEventListener('pointerdown',e=>{
+  const p=pt(e), R=Math.min(W,H)*0.1;
+  if(Math.hypot(p.x-carrot.x,(p.y-carrot.y)/0.6)<R*1.4){dragging=true;cv.setPointerCapture(e.pointerId);cv.style.cursor='grabbing';}
+});
+cv.addEventListener('pointermove',e=>{if(dragging) carrot=pt(e);});
+cv.addEventListener('pointerup',()=>{dragging=false;cv.style.cursor='grab';});
+cv.addEventListener('pointercancel',()=>{dragging=false;cv.style.cursor='grab';});
+cv.addEventListener('touchstart',e=>{const t=e.touches[0];const p=pt(t),R=Math.min(W,H)*0.1;if(Math.hypot(p.x-carrot.x,(p.y-carrot.y)/0.6)<R*1.4){e.preventDefault();dragging=true;}},{passive:false});
+cv.addEventListener('touchmove',e=>{if(dragging){e.preventDefault();carrot=pt(e.touches[0]);}},{passive:false});
+cv.addEventListener('touchend',()=>{dragging=false;});
+
+/* ---------- load a clip ---------- */
+function sizeFor(ar){ const long=960; return ar>=1?[long,Math.round(long/ar)]:[Math.round(long*ar),long]; }
+function load(f){
+  if(!f) return;
+  const url=URL.createObjectURL(f);
+  statusEl.textContent=`Loading ${f.name||'your clip'}…`;
+  if(f.type.startsWith('image/') || /\.(jpe?g|png|heic|webp|gif)$/i.test(f.name||'')){
+    const im=new Image();
+    im.onload=()=>{image=im;video=null;setSize(...sizeFor(im.naturalWidth/im.naturalHeight));badge.textContent='Photo';statusEl.textContent='Gefiltered. Photos stay still; film a clip for the jiggle.';};
+    im.src=url; return;
+  }
+  if(video){ video.pause(); video.remove(); }
+  const v=document.createElement('video');
+  v.muted=true; v.defaultMuted=true; v.loop=true; v.playsInline=true;
+  v.setAttribute('playsinline',''); v.setAttribute('webkit-playsinline',''); v.setAttribute('muted','');
+  v.preload='auto';
+  $('holder').appendChild(v);
+  let ready=false;
+  const go=()=>{
+    if(ready||!v.videoWidth) return; ready=true;
+    video=v; image=null; paused=false; $('play').textContent='Pause';
+    setSize(...sizeFor(v.videoWidth/v.videoHeight));
+    badge.textContent='You, gefiltered';
+    statusEl.textContent='Scroll down (or tap Adjust) for the sliders. Tap Save filtered video to export it with sound.';
+  };
+  v.onloadedmetadata=go; v.onloadeddata=go; v.oncanplay=go;
+  v.onerror=()=>{statusEl.textContent='That file wouldn’t play here. Try an MP4 or MOV, or open this page in Safari or Chrome.';};
+  v.src=url; v.load();
+  v.play().catch(()=>{});
+  setTimeout(()=>{ if(!ready) statusEl.textContent='Still loading. If nothing happens, open this page in Safari or Chrome instead of the app.'; },6000);
+}
+// drag and drop on desktop
+$('jump').addEventListener('click',()=>$('knobs').scrollIntoView({behavior:'smooth',block:'start'}));
+cv.addEventListener('dragover',e=>e.preventDefault());
+cv.addEventListener('drop',e=>{e.preventDefault(); load(e.dataTransfer.files[0]);});
+$('cam').addEventListener('change',e=>load(e.target.files[0]));
+$('file').addEventListener('change',e=>load(e.target.files[0]));
+
+$('play').addEventListener('click',()=>{
+  paused=!paused; $('play').textContent=paused?'Play':'Pause';
+  if(video){ video.muted=false; paused?video.pause():video.play(); }
+});
+
+/* ---------- save the filtered video, with the clip's sound ---------- */
+let rec=null, chunks=[], actx=null, audioDest=null, wired=new WeakSet();
+function audioFor(v){
+  try{
+    actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    actx.resume();
+    if(!audioDest) audioDest=actx.createMediaStreamDestination();
+    if(!wired.has(v)){ const n=actx.createMediaElementSource(v); n.connect(actx.destination); n.connect(audioDest); wired.add(v); }
+    return audioDest.stream.getAudioTracks();
+  }catch(e){ return []; }
+}
+$('rec').addEventListener('click',()=>{
+  if(rec){ rec.stop(); return; }
+  if(!cv.captureStream||!window.MediaRecorder){statusEl.textContent='This browser can’t save canvas video. Try Safari or Chrome.';return;}
+  const stream=cv.captureStream(30);
+  if(video){ video.muted=false; audioFor(video).forEach(tr=>stream.addTrack(tr)); }
+  const types=['video/mp4;codecs=avc1,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm'];
+  const type=types.find(t=>MediaRecorder.isTypeSupported(t))||'';
+  rec=new MediaRecorder(stream,type?{mimeType:type,videoBitsPerSecond:6e6}:undefined); chunks=[];
+  rec.ondataavailable=e=>e.data.size&&chunks.push(e.data);
+  const startedWithVideo=video;
+  if(video){ video.loop=false; video.onended=()=>rec&&rec.stop(); video.currentTime=0; video.play(); paused=false; $('play').textContent='Pause'; }
+  rec.onstop=async()=>{
+    const blob=new Blob(chunks,{type:rec.mimeType||'video/webm'});
+    const ext=(rec.mimeType||'').includes('mp4')?'mp4':'webm';
+    rec=null; $('rec').textContent='● Save filtered video'; badge.classList.remove('rec');
+    badge.textContent=video?'You, gefiltered':'Demo';
+    if(startedWithVideo){ startedWithVideo.loop=true; startedWithVideo.onended=null; startedWithVideo.play(); }
+    const dl=await claude.use('downloads').catch(()=>null);
+    if(!dl){statusEl.textContent='Recorded, but saving isn’t available in this view. Open the page in the Claude app or a signed-in browser.';return;}
+    try{ await dl.save({filename:`gefilter-fish.${ext}`,data:blob}); statusEl.textContent=`Saved gefilter-fish.${ext}.`; }
+    catch(e){ statusEl.textContent='Save cancelled.'; }
+  };
+  rec.start(250);
+  $('rec').textContent='■ Stop'; badge.textContent='Recording'; badge.classList.add('rec');
+  statusEl.textContent=video?'Recording your clip from the start. It stops by itself at the end.':'Recording the demo. Tap Stop when you’re done.';
+});
+
+setSize(W,H);
+requestAnimationFrame(frame);
+})();
+</script>
+
+</body></html>
