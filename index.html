@@ -77,7 +77,7 @@ input[type=checkbox]{accent-color:var(--chrain);width:18px;height:18px}
   </header>
 
   <div class="stage">
-    <canvas id="cv" width="960" height="960" aria-label="Filtered video preview"></canvas>
+    <canvas id="cv" width="960" height="720" aria-label="Filtered video preview"></canvas>
     <span class="badge" id="badge">Demo</span>
   </div>
 
@@ -365,7 +365,7 @@ cv.addEventListener('touchmove',e=>{if(dragging){e.preventDefault();carrot=pt(e.
 cv.addEventListener('touchend',()=>{dragging=false;});
 
 /* ---------- load a clip ---------- */
-function sizeFor(ar){ return [960,960]; }
+function sizeFor(ar){ const long=960; return ar>=1?[long,Math.round(long/ar)]:[Math.round(long*ar),long]; }
 function load(f){
   if(!f) return;
   const url=URL.createObjectURL(f);
