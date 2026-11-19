@@ -1,0 +1,9 @@
+{
+  "name": "personal-runway",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Personal Runway working demo: real AI try-on of outfits from any store, runway video, size estimates.",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" }
+}
