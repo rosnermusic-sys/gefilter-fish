@@ -148,9 +148,9 @@ async function api(req, res, pathname) {
     } else {
       // Try-On Max: best quality, and it takes a short styling instruction.
       const what = { 'one-pieces': 'the dress or jumpsuit', bottoms: 'the pants or skirt', tops: 'the top or jacket', auto: 'the main garment' }[category];
-      let prompt = `Dress her in ${what} from the product photo only; ignore any other clothing, shoes or accessories in that photo. Keep her face, hair, pose and background unchanged.`;
-      if (category === 'tops' && b.layer) prompt += ' Wear it open, layered over the outfit she already has on; keep that outfit fully visible underneath.';
-      else if (category !== 'auto') prompt += ' Keep the rest of what she is wearing.';
+      let prompt = `The MODEL image is the shopper. The PRODUCT image only supplies the clothing. Output the shopper from the MODEL image, keeping her exact face, hair, skin tone, body shape, pose, shoes and background, now wearing ${what} taken from the PRODUCT image. Never copy the person, face, pose, shoes, other garments or background from the PRODUCT image.`;
+      if (category === 'tops' && b.layer) prompt += ' Wear it open, layered over the outfit she already has on in the MODEL image; keep that outfit visible underneath.';
+      else if (category !== 'auto') prompt += ' Keep everything else she is wearing in the MODEL image.';
       if (b.note) prompt += ' ' + String(b.note).slice(0, 200);
       id = await fashnRun('tryon-max', {
         model_image: b.model_image, product_image: garment, prompt,
